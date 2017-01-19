@@ -32,12 +32,34 @@ app.get('/login', function(req, res) {
     res.sendFile(path.join(__dirname, '/public/login.html'));
 });
 
-app.get('/chat', function(req, res) {
-    res.sendFile(path.join(__dirname, '/public/chat.html'));
-});
-
 app.get('/signup', function(req, res) {
     res.sendFile(path.join(__dirname + '/public/register.html'));
+});
+
+app.post('/api/users', function(req, res) {
+    var name = req.body.name;
+    var username = req.body.username;
+    var password = req.body.password;
+    var confirm = req.body.confirm;
+    if (!name || !username || !password || !confirm) {
+        res.status(400)
+        res.json({ success: false, message: 'Invalid Parameter.' });
+    }
+    if (password != confirm) {
+        res.status(400)
+        res.json({ success: false, message: 'Passwords do no match.' });
+    }
+    User.createOrUpdate({
+        name: name,
+        username: username,
+        password: password
+    }).then(function(user) {
+        res.status(201)
+        res.json(user);
+    }).catch(function(err) {
+        res.status(500)
+        res.json({ success: false, message: err.message });
+    });
 });
 
 app.post('/api/authenticate', function(req, res) {
@@ -65,7 +87,35 @@ app.post('/api/authenticate', function(req, res) {
     });
 });
 
-app.get('/api/messages', function(req, res) {
+
+var apiRoutes = express.Router();
+
+apiRoutes.use(function(req, res, next) {
+    var token = req.body.token || req.query.token || req.headers['x-access-token'];
+    if (token) {
+        jwt.verify(token, app.get('superSecret'), function(err, decoded) {
+            if (err) {
+                return res.json({ success: false, message: 'Failed to authenticate token.' });
+            } else {
+                // if everything is good, save to request for use in other routes
+                req.decoded = decoded;
+                next();
+            }
+        });
+    } else {
+        return res.status(403).send({
+            success: false,
+            message: 'No token provided.'
+        });
+    }
+});
+
+apiRoutes.get('/chat', function(req, res) {
+    res.sendFile(path.join(__dirname, '/public/chat.html'));
+});
+
+
+apiRoutes.get('/api/messages', function(req, res) {
     var to = req.query.to;
     var from = req.query.from;
     var query = {};
@@ -95,31 +145,7 @@ app.get('/api/messages', function(req, res) {
     });
 });
 
-app.post('/api/users', function(req, res) {
-    var name = req.body.name;
-    var username = req.body.username;
-    var password = req.body.password;
-    var confirm = req.body.confirm;
-    if (!name || !username || !password || !confirm) {
-        res.status(400)
-        res.json({ success: false, message: 'Invalid Parameter.' });
-    }
-    if (password != confirm) {
-        res.status(400)
-        res.json({ success: false, message: 'Passwords do no match.' });
-    }
-    User.createOrUpdate({
-        name: name,
-        username: username,
-        password: password
-    }).then(function(user) {
-        res.status(201)
-        res.json(user);
-    }).catch(function(err) {
-        res.status(500)
-        res.json({ success: false, message: err.message });
-    });
-});
+app.use('/', apiRoutes);
 
 var sockets = {};
 
@@ -138,16 +164,26 @@ socketio.listen(websocket_port).on('connection', function(socket) {
             return;
         }
         if (msg.message && msg.to && msg.from) {
-            console.log('Sending message', msg);
-            Message.postMessage(msg.from, msg.to, msg.message)
-                .then(function(message) {
-                    if (sockets[msg.to]) {
-                        sockets[msg.to].send(msg);
-                    }
+            var token = msg.token;
+            if (token) {
+                jwt.verify(token, app.get('superSecret'), function(err, decoded) {
+                    if (err) {
+                        return;
+                    } else {
+                        console.log('Sending message', msg);
+                        Message.postMessage(msg.from, msg.to, msg.message)
+                            .then(function(message) {
+                                if (sockets[msg.to]) {
+                                    sockets[msg.to].send(msg);
+                                }
 
-                }).catch(function(error) {
-                    console.log(error);
-                })
+                            }).catch(function(error) {
+                                console.log(error);
+                            });
+                    }
+                });
+            }
+
         }
         console.log('Message Received: ', msg);
     });

@@ -53,7 +53,7 @@ app.controller("ChatController", function($scope, $http, $location, $localStorag
     $scope.chatToUser = function(user) {
         console.log('[*] Chatting with ', user);
         $scope.chatMessagesAllUser[user] = [];
-        $http.get("/api/messages?to=" + username + '&from=' + user)
+        $http.get("/api/messages?to=" + username + '&from=' + user + '&token=' + token)
             .then(function(messages) {
                 if (!messages || !messages.data || messages.data.length === 0) return;
                 messages.data.forEach(function(message) {
@@ -92,7 +92,7 @@ app.controller("ChatController", function($scope, $http, $location, $localStorag
                 new Date());
 
             $scope.chatMessages.push(chat);
-            iosocket.send({ from: username, to: _username, message: $scope.newChatMsg });
+            iosocket.send({ from: username, to: _username, message: $scope.newChatMsg, token: token });
             $scope.newChatMsg = "";
         }
     }
