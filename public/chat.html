@@ -1,99 +1,98 @@
-<html> 
-    <head> 
-        <link rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.min.css"/>
-        <script src="/bower_components/socket.io-client/dist/socket.io.js"></script> 
-        <script src="bower_components/jquery/dist/jquery.js"></script> 
-        <script src="bower_components/angular/angular.js"></script> 
-        <script src="bower_components/ngstorage/ngStorage.min.js"></script> 
-        <script src="/public/js/chat.js"></script> 
-        <script> 
-            $(function(){ 
-                    
-                 
-            }); 
-        </script> 
-    </head> 
-        <body ng-app="testapp">
-  <div class="container">
-    <div class="row">
-      <div class="col-md-12">
-        &nbsp;
-      </div>
-    </div>
-    <div class="alert alert-warning text-center" id="incomingChatMessages"></div>
-    <div class="row" ng-controller="ChatController">
-      <div class="col-md-4">
-        <div class="panel panel-default">
-                <div class="panel-heading" style="padding:0 0 0 8px;">
-                    Users
-                </div>
-                <div class="panel-body">
-                    <ul> 
-                        <li ng-repeat="user in users" ng-click="chatToUser(user)"> {{user.username}}  </li>
-                    </ul> 
+<html>
+
+<head>
+    <link rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.min.css" />
+    <script src="/bower_components/socket.io-client/dist/socket.io.js"></script>
+    <script src="bower_components/jquery/dist/jquery.js"></script>
+    <script src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/ngstorage/ngStorage.min.js"></script>
+    <script src="/public/js/chat.js"></script>
+    <script>
+    $(function() {
+
+
+    });
+    </script>
+</head>
+
+<body ng-app="testapp">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                &nbsp;
+            </div>
+        </div>
+        <div class="alert alert-warning text-center" id="incomingChatMessages"></div>
+        <div class="row" ng-controller="ChatController">
+            <div class="col-md-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading" style="padding:0 0 0 8px;">
+                        Users
+                    </div>
+                    <div class="panel-body">
+                        <ul>
+                            <li ng-repeat="user in users" ng-click="chatToUser(user)"> {{user}} </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
-      </div>
-      <div class="col-md-4">
-        <div class="row">
-          <div class="col-md-12" >
-            
-            <div class="panel panel-primary" >
-              <div class="panel-heading" style="padding:0 0 0 8px;">
-                <span class="glyphicon glyphicon-user"></span>
-                <h6 class="panel-title" style="display:inline;">Chat</h6>
-                <div class="btn-group btn-group-xs pull-right">
-                  <button type="button" class="btn btn-primary"><span class="glyphicon glyphicon-lock"></span></button>
-                  <button type="button" class="btn btn-primary"><span class="glyphicon glyphicon-cog"></span></button>
-                  <button type="button" class="btn btn-primary"><span class="glyphicon glyphicon-remove"></span></button>
-                </div>
-                <div class="clearfix"></div>
-              </div>
-              <div class="panel-body" style="padding:0 4px;">
+            <div class="col-md-4">
                 <div class="row">
-                  <div class="col-xs-12" style="max-height:300px;max-width:100%;overflow-y:auto;overflow-x:hidden;">
-                    <table class="table table-hover table-condensed" style="">
-                      <tr ng-hide="chatMessages.length === 0" ng-repeat="chat in chatMessages | orderBy:origDt | reverse"
-                          style="min-width:100%;max-width:100%;width:100%;">
-                        <td><img src="{{chat.icon}}" alt="" style="margin-top:8px;"/></td>
-                        <td>
-                          <h6>{{chat.username}}</h6>
-                        </td>
-                        <td>
-                        <p class="word-wrap:break-word"><small>{{chat.text}}</small></p>
-                        </td>
-                      </tr>
-                      <tr ng-show="chatMessages.length === 0">
-                        <td>
-                          <p>Nothin' here. <strong>Say something!</strong></p>
-                        </td>
-                      </tr>
-                    </table>
-                  </div>
-                </div>
-              </div>
-              <div class="panel-footer">
-                <form>
-                  <div class="input-group input-group-sm">
-                    <span class="input-group-addon">
+                    <div class="col-md-12">
+                        <div class="panel panel-primary">
+                            <div class="panel-heading" style="padding:0 0 0 8px;">
+                                <span class="glyphicon glyphicon-user"></span>
+                                <h6 class="panel-title" style="display:inline;">Chat: {{ selectedUser }}</h6>
+                                <div class="btn-group btn-group-xs pull-right">
+                                    <button type="button" class="btn btn-primary"><span class="glyphicon glyphicon-lock"></span></button>
+                                    <button type="button" class="btn btn-primary"><span class="glyphicon glyphicon-cog"></span></button>
+                                    <button type="button" class="btn btn-primary"><span class="glyphicon glyphicon-remove"></span></button>
+                                </div>
+                                <div class="clearfix"></div>
+                            </div>
+                            <div class="panel-body" style="padding:0 4px;">
+                                <div class="row">
+                                    <div class="col-xs-12" style="max-height:300px;max-width:100%;overflow-y:auto;overflow-x:hidden;">
+                                        <table class="table table-hover table-condensed" style="">
+                                            <tr ng-hide="chatMessages.length === 0" ng-repeat="chat in chatMessages | orderBy:origDt | reverse" style="min-width:100%;max-width:100%;width:100%;">
+                                                <td><img src="{{chat.icon}}" alt="" style="margin-top:8px;" /></td>
+                                                <td>
+                                                    <h6>{{chat.username}}</h6>
+                                                </td>
+                                                <td>
+                                                    <p class="word-wrap:break-word"><small>{{chat.text}}</small></p>
+                                                </td>
+                                            </tr>
+                                            <tr ng-show="chatMessages.length === 0">
+                                                <td>
+                                                    <p>Nothin' here. <strong>Say something!</strong></p>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel-footer">
+                                <form>
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-addon">
                       <img src="http://placehold.it/16x16" alt="" />
                     </span>
-                    <input type="text" class="form-control" ng-model="newChatMsg" placeholder="..."/>
-                    <span class="input-group-btn">
+                                        <input type="text" class="form-control" ng-model="newChatMsg" placeholder="..." />
+                                        <span class="input-group-btn">
                       <button class="btn btn-primary" type="submit" ng-click="addChat(selectedUser)">Send</button>
                     </span>
-                  </div>
-                </form>
-              </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-
-
-          </div>
+            <div class="col-md-4"></div>
         </div>
-      </div>
-      <div class="col-md-4"></div>
     </div>
-  </div>
 </body>
-    </body>
+</body>
+
 </html>
