@@ -30,9 +30,7 @@
                         Users
                     </div>
                     <div class="panel-body">
-                        <ul>
-                            <li ng-repeat="user in users" ng-click="chatToUser(user)"> {{user}} </li>
-                        </ul>
+                            <div ng-repeat="user in users" ng-click="chatToUser(user)"> <a class="btn btn-link" style="cursor: pointer;">{{user}}</a> </div>
                     </div>
                 </div>
             </div>
@@ -44,8 +42,6 @@
                                 <span class="glyphicon glyphicon-user"></span>
                                 <h6 class="panel-title" style="display:inline;">Chat: {{ selectedUser }}</h6>
                                 <div class="btn-group btn-group-xs pull-right">
-                                    <button type="button" class="btn btn-primary"><span class="glyphicon glyphicon-lock"></span></button>
-                                    <button type="button" class="btn btn-primary"><span class="glyphicon glyphicon-cog"></span></button>
                                     <button type="button" class="btn btn-primary"><span class="glyphicon glyphicon-remove"></span></button>
                                 </div>
                                 <div class="clearfix"></div>

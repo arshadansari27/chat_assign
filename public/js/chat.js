@@ -4,9 +4,6 @@ var app = angular.module("testapp", [
 
 app.factory("DataModel", function() {
     var Service = {};
-
-
-
     return Service;
 });
 
