@@ -1,0 +1,109 @@
+    <head>
+        <title>Login</title>
+        <link rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.min.css"/>
+        <script src="bower_components/jquery/dist/jquery.js"></script> 
+   </head>
+    <body>
+  
+
+
+    <div class="container">    
+        <div id="loginbox" style="margin-top:50px;" class="mainbox col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">                    
+            <div class="panel panel-info" >
+                    <div class="panel-heading">
+                        <div class="panel-title">Sign In</div>
+                        <div style="float:right; font-size: 80%; position: relative; top:-10px"><a href="#">Forgot password?</a></div>
+                    </div>     
+
+                    <div style="padding-top:30px" class="panel-body" >
+
+                        <div style="display:none" id="login-alert" class="alert alert-danger col-sm-12"></div>
+                            
+                        <form id="loginform" class="form-horizontal" role="form">
+                                    
+                            <div style="margin-bottom: 25px" class="input-group">
+                                        <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                                        <input id="username" type="text" class="form-control" name="username" value="" placeholder="username or email">                                        
+                                    </div>
+                                
+                            <div style="margin-bottom: 25px" class="input-group">
+                                        <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
+                                        <input id="password" type="password" class="form-control" name="password" placeholder="password">
+                                    </div>
+                                    
+
+                                
+                                <div style="margin-top:10px" class="form-group">
+                                    <!-- Button -->
+
+                                    <div class="col-sm-12 controls">
+                                      <button type="submit" class="btn btn-success">Login  </button>
+                                      <a id="btn btn-link" href="#" class="btn btn-default">Register</a>
+
+                                    </div>
+                                </div>
+
+
+                            </form>     
+
+
+
+                        </div>                     
+                    </div>  
+        </div>
+    </div>
+        <script type="javascript" src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+    <script>
+        $(document).ready(function() {
+            $("#loginform") .submit(function(e){
+                    var url = "/api/authenticate"; // the script where you handle the form input.
+                    var data = {
+                        username: $("#username").val(),
+                        password: $("#password").val()
+                    }
+                    console.log(data);
+                    $.ajax({
+                        type: "POST",
+                        url: url,
+                        data: data,
+                        success: function(data) {
+                            if (!data.success) {
+                                $("#login-alert").html('<p>' + data.message + "</p>");
+                                $("#login-alert").show();
+                                setTimeout(function() {
+                                    $("#login-alert").hide();
+                                }, 4000)
+                                return; 
+                            }
+                            alert(data.message); 
+                            console.log(data);
+                            localStorage.setItem('access_token', data.token);
+                            localStorage.setItem('user', data.username);
+                            window.location.href ="/chat?access_token=" + data.token;
+                        },
+                        error: function(xhr, textStatus, errorThrown){
+                                $("#login-alert").html('Something went wrong');
+                                $("#login-alert").show();
+                                setTimeout(function() {
+                                    $("#login-alert").hide();
+                                }, 4000)
+                        },
+                        fail: function(data) {
+                            if (data && data.message)  {
+                                $("#login-alert").html('<p>' + data.message + '</p>');
+                            } else {
+                                $("#login-alert").html('Something went wrong');
+                            }
+                            $("#login-alert").show();
+                            setTimeout(function() {
+                                $("#login-alert").hide();
+                            }, 4000)
+                        }
+                    });
+
+                    e.preventDefault(); 
+            });
+        });
+    </script>
+        </body>
+        </html>
