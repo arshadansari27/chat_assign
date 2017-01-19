@@ -12,6 +12,7 @@ mongoose.connect(config.database, function(err) {
     if (err) throw err;
 });
 var User = require('./models/user');
+var Message = require('./models/message');
 
 var port = process.env.PORT || 3000;
 var websocket_port = 3001
@@ -64,6 +65,36 @@ app.post('/api/authenticate', function(req, res) {
     });
 });
 
+app.get('/api/messages', function(req, res) {
+    var to = req.query.to;
+    var from = req.query.from;
+    var query = {};
+    if (to && from) {
+        query = {
+            to: {
+                $in: [from, to]
+            },
+            from: {
+                $in: [from, to]
+            }
+        };
+    } else {
+
+        if (to) {
+            query.to = to;
+        }
+        if (from) {
+            query.from = from;
+        }
+    }
+    Message.getByQuery(query).then(function(messages) {
+        res.json(messages);
+    }).catch(function(err) {
+        res.status(500)
+        res.json({ success: false, message: err.message });
+    });
+});
+
 app.post('/api/users', function(req, res) {
     var name = req.body.name;
     var username = req.body.username;
@@ -107,8 +138,16 @@ socketio.listen(websocket_port).on('connection', function(socket) {
             return;
         }
         if (msg.message && msg.to && msg.from) {
-            console.log('SEnding messagej')
-            sockets[msg.to].send(msg);
+            console.log('Sending message', msg);
+            Message.postMessage(msg.from, msg.to, msg.message)
+                .then(function(message) {
+                    if (sockets[msg.to]) {
+                        sockets[msg.to].send(msg);
+                    }
+
+                }).catch(function(error) {
+                    console.log(error);
+                })
         }
         console.log('Message Received: ', msg);
     });
